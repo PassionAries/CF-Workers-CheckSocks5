@@ -2881,6 +2881,17 @@ function generateHTML(备案内容) {
 			--risk-shadow: rgba(239, 68, 68, 0.2);
 		}
 
+		.filter-chip-risk.risk-unknown,
+		.meta-chip-risk.risk-unknown {
+			--risk-border: rgba(148, 163, 184, 0.32);
+			--risk-bg: rgba(148, 163, 184, 0.12);
+			--risk-color: #cbd5e1;
+			--risk-active-border: rgba(148, 163, 184, 0.6);
+			--risk-active-bg: linear-gradient(135deg, rgba(148, 163, 184, 0.34), rgba(100, 116, 139, 0.2));
+			--risk-active-color: #ffffff;
+			--risk-shadow: rgba(148, 163, 184, 0.18);
+		}
+
 		.export-chip {
 			border-color: rgba(251, 191, 36, 0.28);
 			background: linear-gradient(135deg, rgba(251, 191, 36, 0.18), rgba(255, 184, 105, 0.12));
@@ -3850,6 +3861,17 @@ function generateHTML(备案内容) {
 			--risk-shadow: rgba(220, 38, 38, 0.1);
 		}
 
+		html[data-theme='light'] .filter-chip-risk.risk-unknown,
+		html[data-theme='light'] .meta-chip-risk.risk-unknown {
+			--risk-border: rgba(100, 116, 139, 0.26);
+			--risk-bg: rgba(100, 116, 139, 0.08);
+			--risk-color: #475569;
+			--risk-active-border: rgba(100, 116, 139, 0.44);
+			--risk-active-bg: linear-gradient(135deg, rgba(100, 116, 139, 0.18), rgba(71, 85, 105, 0.12));
+			--risk-active-color: #334155;
+			--risk-shadow: rgba(100, 116, 139, 0.1);
+		}
+
 		html[data-theme='light'] .filter-chip-risk:hover,
 		html[data-theme='light'] .filter-chip-risk.is-active {
 			border-color: var(--risk-active-border);
@@ -4427,7 +4449,8 @@ function generateHTML(备案内容) {
 			{ key: 'low', label: '纯净' },
 			{ key: 'elevated', label: '轻微风险' },
 			{ key: 'high', label: '高风险' },
-			{ key: 'critical', label: '极度危险' }
+			{ key: 'critical', label: '极度危险' },
+			{ key: 'unknown', label: '未知' }
 		];
 		const PRIMARY_RESULT_FILTERS = [
 			{ key: 'all', label: '全部' },
@@ -5818,6 +5841,7 @@ function generateHTML(备案内容) {
 		}
 
 		function getRiskFilterSeverity(filterKey) {
+			if (filterKey === 'unknown') return -1;
 			return RISK_RESULT_FILTERS.findIndex(function (filter) {
 				return filter.key === filterKey;
 			});
