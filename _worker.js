@@ -337,13 +337,13 @@ async function checkProxy({ type, value }, colo) {
 				} : exit.asn,
 				rir: exit.asn?.rir || null,
 				is_datacenter: exit.privacy?.is_hosting || false,
-			is_crawler: false,
-			is_bogon: exit.privacy?.is_bogon || false,
-			is_proxy: exit.privacy?.is_proxy || false,
-			is_vpn: exit.privacy?.is_vpn || false,
-			is_tor: exit.privacy?.is_tor || false,
-			is_abuser: exit.privacy?.is_abuser || false,
-		};
+				is_crawler: false,
+				is_bogon: exit.privacy?.is_bogon || false,
+				is_proxy: exit.privacy?.is_proxy || false,
+				is_vpn: exit.privacy?.is_vpn || false,
+				is_tor: exit.privacy?.is_tor || false,
+				is_abuser: exit.privacy?.is_abuser || false,
+			};
 		} finally {
 			try { tlsSocket.close(); } catch (e) { }
 		}
