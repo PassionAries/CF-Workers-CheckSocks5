@@ -74,7 +74,7 @@ sstp://username:password@host:443
 
 ### TURN 支持说明
 
-`turn://` 目标会被当作 TURN over TCP 服务器检测。Worker 会先连接 TURN 服务器，再通过 TURN TCP 中继访问 `api.ipapi.is:443`，最后读取出口 IP 信息。
+`turn://` 目标会被当作 TURN over TCP 服务器检测。Worker 会先连接 TURN 服务器，再通过 TURN TCP 中继访问 `www.iplocate.io:443`，最后读取出口 IP 信息。
 
 当前 TURN 实现有以下边界：
 
@@ -85,7 +85,7 @@ sstp://username:password@host:443
 
 ### SSTP 支持说明
 
-`sstp://` 目标会被当作 SSTP over TLS 服务器检测。Worker 会先建立 SSTP HTTP 隧道，再完成 PPP / IPCP 协商，随后在 PPP 内构造 TCP 连接访问 `api.ipapi.is:443`，最后读取出口 IP 信息。
+`sstp://` 目标会被当作 SSTP over TLS 服务器检测。Worker 会先建立 SSTP HTTP 隧道，再完成 PPP / IPCP 协商，随后在 PPP 内构造 TCP 连接访问 `www.iplocate.io:443`，最后读取出口 IP 信息。
 
 当前 SSTP 实现有以下边界：
 
@@ -99,7 +99,7 @@ sstp://username:password@host:443
 
 ### `GET /check`
 
-检测单个代理是否可用。Worker 会通过代理建立到 `api.ipapi.is` 的连接，并读取该服务返回的出口 IP 信息。
+检测单个代理是否可用。Worker 会通过代理建立到 `www.iplocate.io` 的连接，并读取该服务返回的出口 IP 信息。
 
 请求参数支持以下写法：
 
@@ -245,7 +245,7 @@ https://your-worker.example.workers.dev/socks5://proxy.example.com:1080
 ## 注意事项
 
 - Cloudflare Workers 的 TCP Socket 能力由 `cloudflare:sockets` 提供，请确保部署环境支持 Workers TCP 出站连接。
-- 检测逻辑会把代理作为隧道访问 `api.ipapi.is`，因此结果反映的是该代理访问该目标服务时的可用性和出口信息。
+- 检测逻辑会把代理作为隧道访问 `www.iplocate.io`，因此结果反映的是该代理访问该目标服务时的可用性和出口信息。
 - TURN 检测依赖 TURN 服务器支持 TCP relay / CONNECT；只支持 UDP relay 的 TURN 服务会检测失败。
 - SSTP 检测依赖服务端支持 SSTP over TLS、PPP / IPCP 和 IPv4 分配；仅支持 PAP 认证，不支持 MS-CHAP 等其他 PPP 认证方式。
 - 公开部署时请谨慎使用真实代理账号密码；当前页面和接口没有访问令牌保护。
@@ -263,7 +263,7 @@ https://your-worker.example.workers.dev/socks5://proxy.example.com:1080
 ## 致谢
 - [@Alexandre_Kojeve](https://t.me/Alexandre_Kojeve)
 - [Cloudflare Workers](https://workers.cloudflare.com/)
-- [ipapi.is](https://ipapi.is/)
+- [iplocate.io](https://www.iplocate.io/)
 - [Cloudflare DNS](https://cloudflare-dns.com/)
 - [OpenStreetMap](https://www.openstreetmap.org/)
 - [Leaflet](https://leafletjs.com/)

@@ -232,7 +232,7 @@ async function checkProxy({ type, value }, colo) {
 	}
 
 	let tunnel = null;
-	const targetHost = 'api.ipapi.is';
+	const targetHost = 'www.iplocate.io';
 	const targetPort = 443;
 
 	try {
@@ -261,7 +261,7 @@ async function checkProxy({ type, value }, colo) {
 		try {
 			await withTimeout(tlsSocket.handshake(), CHECK_TIMEOUT_MS, 'Target TLS handshake timed out');
 			await tlsSocket.write(encoder.encode([
-				'GET / HTTP/1.1',
+				'GET /api/lookup HTTP/1.1',
 				`Host: ${targetHost}`,
 				'User-Agent: Mozilla/5.0 CF-Workers-CheckProxy/2.0',
 				'Accept: application/json',
@@ -296,7 +296,7 @@ async function checkProxy({ type, value }, colo) {
 			const statusMatch = statusLine.match(/HTTP\/\d(?:\.\d)?\s+(\d+)/i);
 			const statusCode = statusMatch ? Number(statusMatch[1]) : NaN;
 			if (!Number.isFinite(statusCode) || statusCode < 200 || statusCode >= 300) {
-				throw new Error(`Target /ip.json request failed: ${statusLine || 'invalid status'}`);
+				throw new Error(`Target /api/lookup request failed: ${statusLine || 'invalid status'}`);
 			}
 
 			let bodyBytes = responseBuffer.slice(headerEndIndex);
@@ -324,8 +324,26 @@ async function checkProxy({ type, value }, colo) {
 			try {
 				exit = JSON.parse(bodyText.trim());
 			} catch (error) {
-				throw new Error('Target /ip.json did not return valid JSON');
+				throw new Error('Target /api/lookup did not return valid JSON');
 			}
+
+			// Transform iplocate.io response to maintain compatibility with existing frontend
+			exit = {
+				...exit,
+				asn: exit.asn ? {
+					...exit.asn,
+					org: exit.asn.name,
+					descr: exit.asn.name,
+				} : exit.asn,
+				rir: exit.asn?.rir || null,
+				is_datacenter: exit.privacy?.is_hosting || false,
+			is_crawler: false,
+			is_bogon: exit.privacy?.is_bogon || false,
+			is_proxy: exit.privacy?.is_proxy || false,
+			is_vpn: exit.privacy?.is_vpn || false,
+			is_tor: exit.privacy?.is_tor || false,
+			is_abuser: exit.privacy?.is_abuser || false,
+		};
 		} finally {
 			try { tlsSocket.close(); } catch (e) { }
 		}
@@ -6685,12 +6703,12 @@ function generateHTML(备案内容) {
 				latitude !== '' && longitude !== '' ? String(latitude) + ',' + String(longitude) : ''
 			);
 			const asn = firstNonEmpty(typeof exit.asn === 'object' ? '' : exit.asn, asnInfo.asn);
-			const asOrganization = firstNonEmpty(exit.asOrganization, exit.org, asnInfo.org, asnInfo.descr, company.name);
+			const asOrganization = firstNonEmpty(exit.asOrganization, exit.org, asnInfo.org, asnInfo.descr, asnInfo.name, company.name);
 			let countryCode = firstNonEmpty(exit.countryCode, exit.country_code, location.country_code, asnInfo.country);
 			if (/^[a-z]{2}$/i.test(String(countryCode || '').trim())) {
 				countryCode = String(countryCode).trim().toUpperCase();
 			}
-			const countryName = firstNonEmpty(exit.countryName, location.country);
+			const countryName = firstNonEmpty(exit.countryName, exit.country, location.country);
 			const ip = firstNonEmpty(exit.ip);
 
 			return Object.assign({}, exit, {
@@ -6705,11 +6723,11 @@ function generateHTML(备案内容) {
 				countryCode: countryCode,
 				country_code: countryCode,
 				countryName: countryName,
-				region: firstNonEmpty(exit.region, exit.regionName, location.state),
+				region: firstNonEmpty(exit.region, exit.regionName, exit.subdivision, location.state),
 				regionCode: firstNonEmpty(exit.regionCode, location.state_code),
 				city: firstNonEmpty(exit.city, location.city),
-				postalCode: firstNonEmpty(exit.postalCode, location.zip),
-				timezone: firstNonEmpty(exit.timezone, location.timezone),
+				postalCode: firstNonEmpty(exit.postalCode, exit.postal_code, location.zip),
+				timezone: firstNonEmpty(exit.timezone, exit.time_zone, location.timezone),
 				loc: loc,
 				latitude: latitude,
 				longitude: longitude
@@ -6825,7 +6843,7 @@ function generateHTML(备案内容) {
 					itemObj.info.innerHTML =
 						'<span class="result-label">候选目标</span>' +
 						buildCopyableTarget(target) +
-						'<span class="result-detail">无法通过该代理访问 api.ipapi.is，请更换目标后重试。</span>';
+						'<span class="result-detail">无法通过该代理访问 www.iplocate.io，请更换目标后重试。</span>';
 					itemObj.meta.innerHTML =
 						buildMetaChip('检测未通过', 'error', 'meta-chip-danger') +
 						buildMetaChip(data.error || data.message || '远端返回失败结果', 'info');
